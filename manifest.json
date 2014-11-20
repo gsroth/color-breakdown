@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+
+  "name": "ColorBreaker",
+  "version": "1.0",
+  "description": "Something",
+
+  "browser_action": {
+    "default_icon": {
+      "19": "icon.png",
+      "38": "icon.png"
+    },
+    "default_popup": "popup.html"
+  },
+
+  "permissions": [
+    "activeTab"
+  ]
+
+}
