@@ -1,0 +1,14 @@
+body {
+  min-width: 300px;
+  margin: 10px;
+  overflow-x: hidden;
+}
+
+.block {
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 10px;
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+}
