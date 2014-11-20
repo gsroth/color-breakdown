@@ -7,11 +7,19 @@
 //   });
 // });
 
-function appendColor( container, color ) {
+function appendColor( container, color, type ) {
   
   var block = document.createElement( "div" );
   block.className = "block";
-  block.style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
+  c = color;
+  if( type.substring( 0,3 ) === "hsl" ) {
+    c[1] = "" + c[1] + "%";
+    c[2] = "" + c[2] + "%";
+  }
+
+  var cString = type + "(" + c[0] + ", " + c[1] + ", " + c[2] + ", " + c[3] + ")";
+  console.log( cString );
+  block.style.backgroundColor = cString;
   container.appendChild( block );
 
 }
@@ -26,12 +34,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
 
-  console.log( "Array received" );  
+  console.log( "Array received" ); 
+  console.log( request );
   if ( request.arr ) { 
     sendResponse( { status: "OK" } );
     var container = document.getElementById( "color-blocks" );
     for( color in request.arr ) {
-      appendColor( container, request.arr[color] );
+      appendColor( container, request.arr[color], request.type );
     }
   } else {
     sendResponse( { status: "bad" } );

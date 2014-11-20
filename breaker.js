@@ -1,4 +1,4 @@
-console.log( "ColorBreaker Loaded" );
+console.log( "ColorBreakdown Loaded" );
 
 function findColors( elem, list ) {
   var style = window.getComputedStyle( elem );
@@ -113,12 +113,103 @@ function flattenTree( tree, arr ) {
 
 }
 
-function getColors( list ) {
+function getColorsRGB( list ) {
+
   var cArr = convertObjToArray( list, convertColorToArray);
   var tree = treeCluster( cArr, sqDistance );
   var flatArr = [];
   flattenTree( tree, flatArr );
   return flatArr;
+
+}
+
+function convertRGBAtoHSLA( color ) {
+  
+  var mini = 0;
+  var maxi = 0;
+
+  for( var i = 1; i < 3; i++ ) {
+    if( color[i] > color[maxi] ) maxi = i;
+    if( color[i] < color[mini] ) mini = i;
+
+  }
+
+  var chroma = color[maxi] - color[mini];
+  var hue;
+
+  if( chroma === 0 ){
+    hue = 0;
+
+  } else if( maxi === 0 ) {
+    hue = ( color[1] - color[2] ) / chroma;
+    if( hue < 0 ) hue = hue + 6;
+
+  } else if( maxi === 1 ) {
+    hue = ( ( color[2] - color[0] ) / chroma ) + 2;
+
+  } else if( maxi === 2 ) {
+    hue = ( ( color[0] - color[1] ) / chroma ) + 4;
+
+  }
+
+  hue = hue * 60;
+
+  var rLuma = 0.2126;
+  var gLuma = 0.7152;
+  var bLuma = 0.0722;
+
+  var luma = rLuma * color[0] + gLuma * color[1] + bLuma * color[2];
+
+  var hsla = [0, 0, 0, 0];
+  hsla[0] = Math.round( hue );
+  hsla[1] = Math.round( chroma / 2.55 ); // *100/255 to normalize to 0-100% 
+  hsla[2] = Math.round( luma / 2.55 );
+  hsla[3] = color[3];
+
+  return hsla;
+
+}
+
+function convertToHSL( list ) {
+  var result = [];
+  for( color in list ) {
+    result.push( convertRGBAtoHSLA( list[color] ) );
+  }
+  return result;
+}
+
+function compareHSL( arr1, arr2 ) {
+
+  if( arr1[1] === 0 && arr2[1] !== 0 ) return -1;
+  if( arr1[1] !== 0 && arr2[1] === 0 ) return 1;
+
+  if( arr1[1] < arr2[1] ) return 1;
+  if( arr1[1] > arr2[1] ) return -1;
+
+  if( arr1[2] < arr2[2] ) return -1;
+  if( arr1[2] > arr2[2] ) return 1;
+
+  if( arr1[0] < arr2[0] ) return -1;
+  if( arr1[0] > arr2[0] ) return 1;
+
+
+  if( arr1[3] < arr2[3] ) return -1;
+  if( arr1[3] > arr2[3] ) return 1;
+  return 0;
+
+}
+
+function getColorsHSL( list ) {
+
+  var cArr = convertObjToArray( list, convertColorToArray);
+  var hslArr = convertToHSL( cArr );
+  // hslArr.sort( compareHSL );
+
+//   box-shadow: 0px 0px 1px 6px red inset;
+// -webkit-transition: box-shadow 1s ease;
+  
+  return hslArr;
+
 }
 
 (function() {
@@ -126,9 +217,9 @@ function getColors( list ) {
   var list = {};
   findColors( window.document.children[0], list );
 
-  var result = getColors( list );
+  var result = getColorsHSL( list );
 
-  chrome.runtime.sendMessage( {arr: result}, function( response ) {
+  chrome.runtime.sendMessage( {arr: result, type: "hsla"}, function( response ) {
     console.log( response.status );
   } );
 

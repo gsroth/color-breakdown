@@ -8,7 +8,8 @@ body {
   display: inline-block;
   box-sizing: border-box;
   margin: 10px;
-  border: 1px solid black;
+  /*border: 1px solid black;*/
+  box-shadow: 1px 2px 6px -3px #666;
   width: 30px;
   height: 30px;
 }
